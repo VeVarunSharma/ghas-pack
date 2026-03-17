@@ -55,7 +55,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.3.7</version>
+            <version>7.0.6</version>
         </dependency>
 
         <!-- Commons Collections — deserialization gadget chain
