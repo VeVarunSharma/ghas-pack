@@ -45,7 +45,7 @@ jobs:
     steps:
       # Step 1 – Check out the repository so CodeQL can access the source.
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Step 2 – Initialise the CodeQL tools and create a database for
       # the language specified in the matrix.  The custom config file

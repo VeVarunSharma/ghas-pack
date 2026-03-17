@@ -22,7 +22,7 @@ jobs:
     steps:
       # Check out the repository so the action can compare dependency changes.
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Probe the Dependency Graph API to detect whether the feature is enabled.
       # When it is disabled the dependency-review-action would hard-fail with
