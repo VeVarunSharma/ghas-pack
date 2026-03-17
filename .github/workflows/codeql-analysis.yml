@@ -28,7 +28,19 @@ jobs:
       fail-fast: false
       matrix:
         # Add or remove languages as needed.
-        language: [javascript, python, java, csharp]
+        include:
+          - language: javascript-typescript
+            build-mode: none
+            category-name: javascript
+          - language: python
+            build-mode: none
+            category-name: python
+          - language: java-kotlin
+            build-mode: none
+            category-name: java
+          - language: csharp
+            build-mode: none
+            category-name: csharp
 
     steps:
       # Step 1 – Check out the repository so CodeQL can access the source.
@@ -38,19 +50,20 @@ jobs:
       # Step 2 – Initialise the CodeQL tools and create a database for
       # the language specified in the matrix.  The custom config file
       # extends the default queries with the security-and-quality suite.
+      # build-mode: "none" performs buildless extraction for all languages,
+      # which works for standalone source files that lack a top-level build
+      # system (the pom.xml / .csproj files are nested in sub-directories).
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
           config-file: ./.github/codeql/codeql-config.yml
+          dependency-caching: true
 
-      # Step 3 – Autobuild attempts to compile the code for compiled
-      # languages (Java, C#).  For interpreted languages (JavaScript,
-      # Python) this step is effectively a no-op but is safe to keep.
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      # Step 4 – Run the CodeQL analysis and upload results to the
+      # Step 3 – Run the CodeQL analysis and upload results to the
       # GitHub Security tab.
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.category-name }}"

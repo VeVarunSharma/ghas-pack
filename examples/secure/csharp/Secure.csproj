@@ -49,6 +49,11 @@
     <!-- System.DirectoryServices 8.0.0 — aligned with net8.0 target;
          needed for the LDAP example. -->
     <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
+
+    <!-- System.Data.SqlClient 4.8.6 — needed for SqlConnection / SqlCommand /
+         SqlException used in the SQL-injection fixed example.  On .NET 8 these
+         types are no longer included by default; the package provides them. -->
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 
 </Project>
