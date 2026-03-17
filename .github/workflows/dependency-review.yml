@@ -7,8 +7,8 @@ name: "Dependency Review"
 on:
   pull_request:
 
-# Permissions needed to read repository contents, post PR comments,
-# and enable the Dependency Graph via the GitHub REST API.
+# Permissions needed to read repository contents, post PR comments, and
+# enable the Dependency Graph via the repository administration API.
 permissions:
   contents: read
   pull-requests: write
