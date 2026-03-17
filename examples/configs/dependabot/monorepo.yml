@@ -13,8 +13,8 @@
 #   - Use different schedules if some areas change faster than others.
 #   - Use target-branch when you want dependency bumps to land on a specific
 #     branch (e.g., a shared "deps" branch) instead of the default branch.
-#   - Directory globs (e.g., /services/*) are NOT supported yet — you must
-#     list each directory explicitly.
+#   - Directory globs (e.g., /services/*) are supported via the `directories`
+#     key. Use `directories` instead of `directory` when you need globs.
 # =============================================================================
 
 version: 2
@@ -88,10 +88,17 @@ updates:
       - "ci"
 
 # =============================================================================
-# NOTE: Directory globs (e.g., "/services/*") are not supported by Dependabot.
-# You must add an explicit entry for each subdirectory that has its own
-# manifest file (package.json, requirements.txt, pom.xml, etc.).
+# TIP: Directory globs (e.g., "/services/*") are supported via the
+# `directories` key. Use `directories` instead of `directory` to target
+# multiple subdirectories with a single entry:
 #
-# If you have many directories, consider scripting the generation of this file
-# from a list of paths to keep it in sync with your repo layout.
+#   - package-ecosystem: "npm"
+#     directories:
+#       - "/services/*"
+#       - "/packages/*"
+#     schedule:
+#       interval: "weekly"
+#
+# This template uses the explicit `directory` approach which gives you
+# per-directory control over schedules, labels, and other settings.
 # =============================================================================
