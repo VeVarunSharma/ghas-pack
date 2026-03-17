@@ -28,7 +28,15 @@ jobs:
       fail-fast: false
       matrix:
         # Add or remove languages as needed.
-        language: [javascript, python, java, csharp]
+        include:
+          - language: javascript-typescript
+            build-mode: none
+          - language: python
+            build-mode: none
+          - language: java-kotlin
+            build-mode: autobuild
+          - language: csharp
+            build-mode: autobuild
 
     steps:
       # Step 1 – Check out the repository so CodeQL can access the source.
@@ -38,19 +46,19 @@ jobs:
       # Step 2 – Initialise the CodeQL tools and create a database for
       # the language specified in the matrix.  The custom config file
       # extends the default queries with the security-and-quality suite.
+      # build-mode: "autobuild" handles compiled languages (Java, C#)
+      # automatically; "none" skips the build for interpreted languages.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
           config-file: ./.github/codeql/codeql-config.yml
+          dependency-caching: true
 
-      # Step 3 – Autobuild attempts to compile the code for compiled
-      # languages (Java, C#).  For interpreted languages (JavaScript,
-      # Python) this step is effectively a no-op but is safe to keep.
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      # Step 4 – Run the CodeQL analysis and upload results to the
+      # Step 3 – Run the CodeQL analysis and upload results to the
       # GitHub Security tab.
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
