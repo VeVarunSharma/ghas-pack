@@ -31,12 +31,16 @@ jobs:
         include:
           - language: javascript-typescript
             build-mode: none
+            category-name: javascript
           - language: python
             build-mode: none
+            category-name: python
           - language: java-kotlin
             build-mode: none
+            category-name: java
           - language: csharp
             build-mode: none
+            category-name: csharp
 
     steps:
       # Step 1 – Check out the repository so CodeQL can access the source.
@@ -62,4 +66,4 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/language:${{ matrix.category-name }}"
