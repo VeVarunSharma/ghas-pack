@@ -28,7 +28,7 @@
 
     <!-- Microsoft.AspNetCore.Mvc.Core 2.1.0 — multiple CVEs including
          CVE-2019-0564 (DoS) and CVE-2019-0548 -->
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.9" />
 
     <!-- System.DirectoryServices — needed for LDAP example -->
     <PackageReference Include="System.DirectoryServices" Version="6.0.0" />
