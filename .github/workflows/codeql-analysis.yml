@@ -34,9 +34,9 @@ jobs:
           - language: python
             build-mode: none
           - language: java-kotlin
-            build-mode: autobuild
+            build-mode: none
           - language: csharp
-            build-mode: autobuild
+            build-mode: none
 
     steps:
       # Step 1 – Check out the repository so CodeQL can access the source.
@@ -46,8 +46,9 @@ jobs:
       # Step 2 – Initialise the CodeQL tools and create a database for
       # the language specified in the matrix.  The custom config file
       # extends the default queries with the security-and-quality suite.
-      # build-mode: "autobuild" handles compiled languages (Java, C#)
-      # automatically; "none" skips the build for interpreted languages.
+      # build-mode: "none" performs buildless extraction for all languages,
+      # which works for standalone source files that lack a top-level build
+      # system (the pom.xml / .csproj files are nested in sub-directories).
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
