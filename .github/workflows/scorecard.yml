@@ -11,17 +11,24 @@ on:
     # Run every Monday at 06:00 UTC
     - cron: "0 6 * * 1"
 
-# Permissions required by the Scorecard action and SARIF upload.
+# Restrict global permissions to read-only so the Scorecard webapp
+# can verify the workflow (write permissions must be job-scoped).
 permissions:
-  security-events: write
-  id-token: write
   contents: read
-  actions: read
 
 jobs:
   scorecard:
     name: Scorecard Analysis
     runs-on: ubuntu-latest
+
+    # Permissions required by the Scorecard action and SARIF upload.
+    # These must be set at the job level, not globally, to satisfy
+    # the ossf/scorecard-action workflow-verification requirements.
+    permissions:
+      security-events: write
+      id-token: write
+      contents: read
+      actions: read
 
     steps:
       # Check out the repository for analysis.
