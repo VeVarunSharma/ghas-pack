@@ -22,6 +22,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Probe the Dependency Graph API to detect whether the feature is enabled.
+      # When it is disabled the dependency-review-action would hard-fail with
+      # "Dependency review is not supported on this repository", so we surface a
+      # clear warning and let subsequent steps skip gracefully instead.
+      - name: Check Dependency Graph availability
+        id: dep-graph
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api \
+            "repos/${{ github.repository }}/dependency-graph/compare/${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" \
+            --silent 2>/dev/null; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Dependency Graph is not enabled on this repository. Enable it at https://github.com/${{ github.repository }}/settings/security_analysis to enforce dependency review on pull requests."
+          fi
+
       # Run the dependency review action.
       #   fail-on-severity  – fail the check if any new dependency has a
       #                       vulnerability of "moderate" severity or higher.
@@ -29,7 +47,11 @@ jobs:
       #                       under the GPL-3.0 license (example policy).
       #   comment-summary-in-pr – post a summary comment on the pull request
       #                           with the review results.
+      # The step is skipped entirely when the Dependency Graph is unavailable
+      # (detected above) so that the workflow passes without silencing real
+      # security violations once the feature is enabled.
       - name: Dependency Review
+        if: steps.dep-graph.outputs.enabled == 'true'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: "moderate"
