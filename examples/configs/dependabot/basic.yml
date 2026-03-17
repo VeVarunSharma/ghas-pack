@@ -1,0 +1,46 @@
+# =============================================================================
+# Dependabot — Basic Configuration
+# =============================================================================
+# The simplest Dependabot setup: one ecosystem, weekly updates.
+# Copy this file to .github/dependabot.yml in your repository.
+#
+# What this does:
+#   - Checks npm dependencies for new versions once a week.
+#   - Opens up to 5 PRs at a time so you don't get overwhelmed.
+#   - Labels every PR for easy filtering.
+# =============================================================================
+
+version: 2
+
+updates:
+  # ---- npm ecosystem --------------------------------------------------------
+  - package-ecosystem: "npm"
+
+    # Directory containing the package.json / package-lock.json.
+    # Use "/" for the repo root.
+    directory: "/"
+
+    # How often to check for updates.
+    # Options: daily | weekly | monthly
+    schedule:
+      interval: "weekly"
+
+      # (Optional) Day of the week for weekly checks.
+      # Options: monday | tuesday | wednesday | thursday | friday | saturday | sunday
+      day: "monday"
+
+      # (Optional) Time of day in UTC (HH:MM format).
+      time: "09:00"
+
+      # (Optional) Timezone (IANA format). Defaults to UTC.
+      timezone: "Etc/UTC"
+
+    # Maximum number of open PRs Dependabot will maintain at once.
+    # Keep this low to avoid PR fatigue; raise it if you merge quickly.
+    open-pull-requests-limit: 5
+
+    # Labels applied to every Dependabot PR.
+    # Useful for filtering in PR views and triggering label-based automations.
+    labels:
+      - "dependencies"
+      - "automated"

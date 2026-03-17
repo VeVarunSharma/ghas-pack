@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ✅ SECURE DEPENDENCIES — Patched versions for GHAS comparison
+
+  Every dependency below has been updated to a version that addresses
+  the known CVEs present in the vulnerable counterpart
+  (examples/vulnerable/java/pom.xml).
+
+  Key changes:
+    • log4j-core  2.14.1 → 2.24.3   (fixes CVE-2021-44228 Log4Shell + later CVEs)
+    • jackson-databind  2.12.3 → 2.18.2   (fixes polymorphic deser CVEs)
+    • spring-core  5.3.7 → 6.2.3   (fixes Spring4Shell CVE-2022-22965 + later CVEs)
+    • commons-collections  3.2.1 → commons-collections4  4.5.0-M3
+      (v4 removes unsafe Transformer-based gadget chains)
+    • struts2-core  REMOVED — replaced by Spring MVC (already pulled in by
+      spring-core); Struts 2.x has a long history of critical RCE CVEs and
+      is not recommended for new projects.
+    • Servlet API upgraded from javax.servlet 4.0.1 to jakarta.servlet-api 6.0.0
+      to align with Jakarta EE / Spring 6.x.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example.ghaspack</groupId>
+    <artifactId>ghas-pack-secure-java</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <name>GHAS Pack — Secure Java Examples</name>
+    <description>
+        Maven project with patched dependency versions, used to demonstrate
+        the "after" state for GitHub Advanced Security supply-chain scanning.
+    </description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- Log4j 2.24.3 — fully patched against CVE-2021-44228 (Log4Shell),
+             CVE-2021-45046, CVE-2021-45105, and CVE-2021-44832. -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.24.3</version>
+        </dependency>
+
+        <!-- Jackson Databind 2.18.2 — addresses CVE-2021-20190,
+             CVE-2020-36518, and other polymorphic deserialization CVEs.
+             Default typing is disabled; only safe subtypes are allowed. -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.18.2</version>
+        </dependency>
+
+        <!-- Spring Framework 6.2.3 — fixes Spring4Shell (CVE-2022-22965),
+             CVE-2021-22118, and subsequent vulnerabilities.
+             Requires Java 17+ and Jakarta EE 9+. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>6.2.3</version>
+        </dependency>
+
+        <!-- Commons Collections4 4.5.0-M3 — the v4 line replaces the
+             legacy commons-collections 3.x.  Unsafe InvokerTransformer
+             and related gadget classes are no longer on the default
+             serialization path, mitigating CVE-2015-6420. -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.5.0-M3</version>
+        </dependency>
+
+        <!-- NOTE: struts2-core has been REMOVED.
+             Apache Struts 2 has a history of critical RCE CVEs
+             (CVE-2021-31805, CVE-2020-17530, CVE-2017-5638, etc.).
+             New projects should use Spring MVC or Jakarta REST instead. -->
+
+        <!-- Jakarta Servlet API 6.0.0 (provided by container at runtime).
+             Aligned with Jakarta EE 10 / Spring 6.x. -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

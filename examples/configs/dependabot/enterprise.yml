@@ -1,0 +1,186 @@
+# =============================================================================
+# Dependabot — Enterprise Configuration
+# =============================================================================
+# A comprehensive Dependabot config for enterprise environments with:
+#   - Multiple ecosystems (npm, pip, Maven, NuGet, Docker, GitHub Actions).
+#   - Private / internal registries (Artifactory, Azure Artifacts, etc.).
+#   - Reviewer & assignee automation.
+#   - Commit-message conventions.
+#   - Allow / ignore rules for fine-grained control.
+#
+# Copy this file to .github/dependabot.yml and replace every "# TODO" with
+# real values. Registry credentials must be stored as GitHub Secrets.
+# =============================================================================
+
+version: 2
+
+# =============================================================================
+# Private Registry Definitions
+# =============================================================================
+# Define all private registries here, then reference them by key in each
+# ecosystem's `registries` list.
+registries:
+
+  # -- npm (e.g., Artifactory, GitHub Packages, Verdaccio) --------------------
+  npm-artifactory:
+    type: npm-registry
+    url: https://artifactory.example.com/api/npm/npm-internal/   # TODO: your registry URL
+    token: ${{secrets.ARTIFACTORY_NPM_TOKEN}}                    # TODO: create this secret
+
+  # -- Maven / Artifactory ---------------------------------------------------
+  maven-artifactory:
+    type: maven-repository
+    url: https://artifactory.example.com/libs-release/            # TODO: your registry URL
+    username: ${{secrets.ARTIFACTORY_USERNAME}}                    # TODO: create this secret
+    password: ${{secrets.ARTIFACTORY_PASSWORD}}                    # TODO: create this secret
+
+  # -- Python (PyPI mirror or private index) ----------------------------------
+  pypi-internal:
+    type: python-index
+    url: https://pypi.example.com/simple/                         # TODO: your registry URL
+    username: ${{secrets.PYPI_USERNAME}}                           # TODO: create this secret
+    password: ${{secrets.PYPI_PASSWORD}}                           # TODO: create this secret
+
+  # -- NuGet (Azure Artifacts, private feed) ----------------------------------
+  nuget-internal:
+    type: nuget-feed
+    url: https://pkgs.dev.azure.com/org/_packaging/feed/nuget/v3/index.json  # TODO: your feed URL
+    username: ${{secrets.NUGET_USERNAME}}                          # TODO: create this secret
+    password: ${{secrets.NUGET_PAT}}                               # TODO: create this secret
+
+  # -- Docker (private container registry) ------------------------------------
+  docker-internal:
+    type: docker-registry
+    url: https://registry.example.com                              # TODO: your registry URL
+    username: ${{secrets.DOCKER_USERNAME}}                          # TODO: create this secret
+    password: ${{secrets.DOCKER_PASSWORD}}                          # TODO: create this secret
+
+# =============================================================================
+# Ecosystem Updates
+# =============================================================================
+updates:
+
+  # ---- npm ------------------------------------------------------------------
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+
+    # Tell Dependabot to also check private registries for this ecosystem.
+    registries:
+      - npm-artifactory
+
+    labels:
+      - "dependencies"
+      - "javascript"
+
+    # Reviewers automatically added to every Dependabot PR.
+    reviewers:
+      - "my-org/frontend-team"           # TODO: your team slug
+    assignees:
+      - "octocat"                        # TODO: your GitHub username
+
+    # Commit-message prefix makes it easy to filter Dependabot commits.
+    commit-message:
+      prefix: "deps(npm)"
+      include: "scope"                   # Adds the dependency name to the prefix.
+
+    # Allow only production dependency updates (skip devDependencies).
+    # Remove this block to allow all updates.
+    allow:
+      - dependency-type: "production"
+
+    # Ignore specific packages or major version bumps you're not ready for.
+    ignore:
+      - dependency-name: "lodash"
+        versions: [">=5"]               # Skip lodash v5 until we're ready.
+
+  # ---- pip (Python) ---------------------------------------------------------
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    registries:
+      - pypi-internal
+    labels:
+      - "dependencies"
+      - "python"
+    reviewers:
+      - "my-org/backend-team"            # TODO: your team slug
+    commit-message:
+      prefix: "deps(pip)"
+
+  # ---- Maven (Java / Kotlin) -----------------------------------------------
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    registries:
+      - maven-artifactory
+    labels:
+      - "dependencies"
+      - "java"
+    reviewers:
+      - "my-org/java-team"               # TODO: your team slug
+    commit-message:
+      prefix: "deps(maven)"
+
+  # ---- NuGet (.NET) ---------------------------------------------------------
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    registries:
+      - nuget-internal
+    labels:
+      - "dependencies"
+      - "dotnet"
+    reviewers:
+      - "my-org/dotnet-team"              # TODO: your team slug
+    commit-message:
+      prefix: "deps(nuget)"
+
+  # ---- Docker ---------------------------------------------------------------
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    registries:
+      - docker-internal
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "deps(docker)"
+
+  # ---- GitHub Actions -------------------------------------------------------
+  # No private registry needed — actions come from github.com.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "deps(actions)"
+
+# =============================================================================
+# Enterprise Checklist
+# =============================================================================
+# 1. Create all referenced secrets in Settings → Secrets and variables → Dependabot.
+# 2. Ensure network access from GitHub-hosted runners (or GHES) to your
+#    private registries. IP allow-listing may be required.
+# 3. Adjust team slugs in `reviewers` to match your GitHub org.
+# 4. Review `ignore` rules periodically — they can hide important updates.
+# 5. Monitor Dependabot logs: Settings → Code security → Dependabot → Logs.
+# =============================================================================

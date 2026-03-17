@@ -1,0 +1,104 @@
+# =============================================================================
+# CodeQL Configuration — Extended
+# =============================================================================
+# A full-featured CodeQL configuration with:
+#   - security-and-quality query suite for comprehensive analysis.
+#   - Custom query packs from the GitHub Container Registry.
+#   - Fine-grained path inclusions and exclusions.
+#   - Query filters to tune alert severity.
+#
+# Copy this file to .github/codeql/codeql-config.yml in your repository, then
+# reference it from your CodeQL workflow:
+#
+#   - name: Initialize CodeQL
+#     uses: github/codeql-action/init@v3
+#     with:
+#       config-file: .github/codeql/codeql-config.yml
+# =============================================================================
+
+name: "CodeQL Config — Extended"
+
+# ---- Query Suites -----------------------------------------------------------
+# security-and-quality includes everything:
+#   • All default security queries
+#   • Extended security queries (lower precision / lower severity)
+#   • Code quality queries (dead code, complexity, best practices)
+#
+# This is noisier than security-extended but gives the most complete picture.
+queries:
+  - uses: security-and-quality
+
+# ---- Custom Query Packs -----------------------------------------------------
+# Pull additional query packs published to the GitHub Container Registry.
+# Format:  <scope>/<pack-name>@<version>
+#
+# Useful for:
+#   - Org-wide custom rules shared across repositories.
+#   - Community query packs that cover frameworks GitHub doesn't ship by default.
+#
+# Uncomment and replace with real pack references:
+packs:
+  javascript-typescript:
+    # GitHub's official experimental queries (may have higher false-positive rate)
+    - codeql/javascript-queries
+    # TODO: Add your org's custom query pack
+    # - my-org/js-custom-queries@~1.0.0
+  python:
+    - codeql/python-queries
+    # - my-org/python-custom-queries@~1.0.0
+  java-kotlin:
+    - codeql/java-queries
+    # - my-org/java-custom-queries@~1.0.0
+
+# ---- Path Inclusions --------------------------------------------------------
+# When `paths` is specified, ONLY these paths are scanned.
+# Omit this section to scan the entire repository.
+#
+# Use this to focus CodeQL on your source code and skip vendored / generated
+# directories without relying solely on paths-ignore.
+# paths:
+#   - "src"
+#   - "lib"
+#   - "app"
+
+# ---- Path Exclusions --------------------------------------------------------
+# Exclude directories that produce false positives or slow down analysis.
+paths-ignore:
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/__tests__/**"
+  - "**/*_test.go"
+  - "**/*_test.py"
+  - "**/testdata/**"
+  - "**/fixtures/**"
+  - "docs/**"
+  - "**/vendor/**"
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/*.generated.*"
+  - "**/migrations/**"        # DB migrations are mostly auto-generated
+
+# ---- Query Filters ----------------------------------------------------------
+# Exclude or include queries by ID, severity, precision, or tags.
+# This lets you suppress noisy rules without removing an entire query suite.
+#
+# Example: exclude low-severity recommendations to reduce noise.
+query-filters:
+  # Keep only medium-and-above severity alerts.
+  - exclude:
+      problem.severity: recommendation
+
+  # Exclude a specific noisy query by ID (uncomment and replace).
+  # - exclude:
+  #     id: js/unused-local-variable
+
+  # Include only queries tagged "security" (uncomment to restrict).
+  # - include:
+  #     tags contain: security
+
+# =============================================================================
+# Reference:
+#   https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning
+#   https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+# =============================================================================

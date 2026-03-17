@@ -1,0 +1,56 @@
+# =============================================================================
+# CodeQL — Basic Workflow (Single Language)
+# =============================================================================
+# The simplest CodeQL setup: one language, default queries, no custom config.
+# This is the recommended starting point. Add complexity only when you need it.
+#
+# Copy this file to .github/workflows/codeql.yml in your repository.
+#
+# What this does:
+#   - Runs CodeQL analysis on every push to main and on every pull request.
+#   - Scans JavaScript/TypeScript code using GitHub's default query suite.
+#   - Results appear in the repository's Security → Code scanning alerts tab.
+# =============================================================================
+
+name: "CodeQL"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# Prevent duplicate runs when a push and a PR event fire for the same commit.
+# The group key ensures only the latest run per branch/PR is kept.
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    # Required permissions for CodeQL to read code and write security events.
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+      # Step 1 — Check out the repository code.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2 — Initialize CodeQL for the chosen language.
+      # "javascript-typescript" covers both JS and TS.
+      # No config-file is specified, so the default query suite is used.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
+      # Step 3 — Run the analysis.
+      # For interpreted languages (JS, Python, Ruby) no build step is needed.
+      # CodeQL's autobuild handles everything automatically.
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

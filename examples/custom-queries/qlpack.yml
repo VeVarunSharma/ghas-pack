@@ -1,0 +1,5 @@
+name: ghas-pack/custom-queries
+version: 0.0.1
+libraryPathDependencies:
+  - codeql/javascript-all
+  - codeql/python-all

@@ -1,0 +1,146 @@
+# =============================================================================
+# CodeQL — Multi-Language Workflow (Matrix Strategy)
+# =============================================================================
+# Advanced CodeQL setup covering multiple languages with:
+#   - A matrix strategy so each language runs in its own job.
+#   - A weekly scheduled scan in addition to push / PR triggers.
+#   - Concurrency settings to cancel duplicate runs.
+#   - Dependency caching for faster builds.
+#   - Custom build steps for compiled languages (Java, C#).
+#   - A reference to a custom CodeQL configuration file.
+#
+# Copy this file to .github/workflows/codeql-multi.yml and adjust as needed.
+# =============================================================================
+
+name: "CodeQL (Multi-Language)"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  # Weekly scheduled scan catches issues introduced outside the PR flow
+  # (direct pushes, dependency updates, new query rules, etc.).
+  schedule:
+    - cron: "30 6 * * 1"   # Every Monday at 06:30 UTC
+
+# Cancel in-progress runs for the same branch / PR to save runner minutes.
+concurrency:
+  group: codeql-multi-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ matrix.os }}
+
+    permissions:
+      security-events: write
+      contents: read
+
+    # ---- Matrix Strategy ----------------------------------------------------
+    # Each language gets its own parallel job.
+    #
+    # build-mode:
+    #   "none"     — interpreted languages; no build step required.
+    #   "autobuild"— CodeQL attempts to detect and run the build automatically.
+    #   "manual"   — you provide explicit build commands (see below).
+    #
+    # For compiled languages (java, csharp), prefer "manual" when autobuild
+    # doesn't work or you need caching / custom flags.
+    # -------------------------------------------------------------------------
+    strategy:
+      fail-fast: false   # Don't cancel other languages if one fails.
+      matrix:
+        include:
+          - language: javascript-typescript
+            build-mode: none
+            os: ubuntu-latest
+
+          - language: python
+            build-mode: none
+            os: ubuntu-latest
+
+          - language: java-kotlin
+            build-mode: manual
+            os: ubuntu-latest
+            java-version: "17"
+
+          - language: csharp
+            build-mode: manual
+            os: ubuntu-latest
+            dotnet-version: "8.0.x"
+
+    steps:
+      # ---- Checkout ---------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---- Dependency caching (speeds up compiled builds) -------------------
+      # Cache Maven / Gradle / NuGet packages so subsequent runs are faster.
+
+      - name: Cache Maven packages
+        if: matrix.language == 'java-kotlin'
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-
+
+      - name: Cache NuGet packages
+        if: matrix.language == 'csharp'
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-
+
+      # ---- Language-specific setup ------------------------------------------
+
+      - name: Set up JDK
+        if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: ${{ matrix.java-version }}
+
+      - name: Set up .NET
+        if: matrix.language == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      # ---- Initialize CodeQL ------------------------------------------------
+      # Point to a custom config file for query selection and path filters.
+      # Remove the config-file line to use the default query suite instead.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+          # Optional: reference a CodeQL configuration file.
+          # See codeql-config-basic.yml or codeql-config-extended.yml in this
+          # directory for examples.
+          # config-file: .github/codeql/codeql-config.yml
+
+      # ---- Manual build steps for compiled languages ------------------------
+      # These run only when build-mode is "manual".
+      # Adjust the commands to match your actual build process.
+
+      - name: Build Java project
+        if: matrix.build-mode == 'manual' && matrix.language == 'java-kotlin'
+        run: |
+          # TODO: Replace with your build command (gradle, ant, etc.)
+          mvn package -DskipTests -B
+
+      - name: Build C# project
+        if: matrix.build-mode == 'manual' && matrix.language == 'csharp'
+        run: |
+          # TODO: Replace with your build command if different.
+          dotnet build --configuration Release --no-restore
+
+      # ---- Run Analysis -----------------------------------------------------
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

@@ -1,0 +1,97 @@
+# =============================================================================
+# Dependabot — Monorepo Configuration
+# =============================================================================
+# Tailored for repositories with multiple packages/services in subdirectories.
+# Each directory gets its own schedule and settings so teams can move at their
+# own pace without blocking each other.
+#
+# Copy this file to .github/dependabot.yml and adjust the directories below
+# to match your project layout.
+#
+# Monorepo tips:
+#   - Give each directory its own entry so Dependabot can open separate PRs.
+#   - Use different schedules if some areas change faster than others.
+#   - Use target-branch when you want dependency bumps to land on a specific
+#     branch (e.g., a shared "deps" branch) instead of the default branch.
+#   - Directory globs (e.g., /services/*) are NOT supported yet — you must
+#     list each directory explicitly.
+# =============================================================================
+
+version: 2
+
+updates:
+  # ---- Frontend (npm) — updated daily because it ships often ----------------
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+
+    # (Optional) Target a specific branch instead of the default branch.
+    # Useful when dependency PRs should go through a staging branch first.
+    # target-branch: "develop"
+
+  # ---- Backend (npm) — updated weekly since it's more stable ----------------
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "backend"
+
+  # ---- Services / API (npm) — monthly cadence for a slower-moving service ---
+  - package-ecosystem: "npm"
+    directory: "/services/api"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "services"
+
+  # ---- Docker — keep base images current ------------------------------------
+  # If your monorepo has Dockerfiles in multiple directories, add one entry
+  # per directory. There is no glob support for directories.
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # ---- GitHub Actions — keep workflow actions pinned to latest --------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"
+
+# =============================================================================
+# NOTE: Directory globs (e.g., "/services/*") are not supported by Dependabot.
+# You must add an explicit entry for each subdirectory that has its own
+# manifest file (package.json, requirements.txt, pom.xml, etc.).
+#
+# If you have many directories, consider scripting the generation of this file
+# from a list of paths to keep it in sync with your repo layout.
+# =============================================================================

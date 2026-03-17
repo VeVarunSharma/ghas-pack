@@ -1,0 +1,46 @@
+# OSSF Scorecard workflow for the GHAS-Pack demo repository.
+# Evaluates the repository against supply-chain security best practices
+# and uploads the results to the GitHub Security tab.
+
+name: "Scorecard Supply-Chain Security"
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Run every Monday at 06:00 UTC
+    - cron: "0 6 * * 1"
+
+# Permissions required by the Scorecard action and SARIF upload.
+permissions:
+  security-events: write
+  id-token: write
+  contents: read
+  actions: read
+
+jobs:
+  scorecard:
+    name: Scorecard Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository for analysis.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Run the OSSF Scorecard analysis.
+      - name: Run Scorecard
+        uses: ossf/scorecard-action@v2.4.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      # Upload the SARIF results to the GitHub Security tab so findings
+      # appear alongside CodeQL and other security alerts.
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif

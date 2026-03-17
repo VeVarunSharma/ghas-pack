@@ -1,0 +1,108 @@
+# =============================================================================
+# OSSF Scorecard Workflow
+# =============================================================================
+# Runs the OpenSSF Scorecard suite against your repository to evaluate
+# supply-chain security posture. Results are uploaded to GitHub Code Scanning
+# so you can view them alongside CodeQL alerts in the Security tab.
+#
+# What Scorecard checks (among others):
+#   • Branch-Protection  — Are default/release branches protected?
+#   • Code-Review        — Are changes reviewed before merge?
+#   • Dependency-Update-Tool — Is Dependabot or Renovate configured?
+#   • Dangerous-Workflow  — Do workflows use dangerous patterns (e.g., pull_request_target)?
+#   • Pinned-Dependencies — Are CI dependencies pinned by hash?
+#   • Token-Permissions   — Are workflow permissions scoped narrowly?
+#   • Vulnerabilities     — Are there known vulns in dependencies?
+#   • SAST               — Is static analysis (e.g., CodeQL) configured?
+#   • Signed-Releases    — Are releases signed?
+#   • Binary-Artifacts   — Is there checked-in binary content?
+#
+# Full list: https://securityscorecards.dev/#the-checks
+#
+# Copy this file to .github/workflows/scorecard.yml in your repository.
+# =============================================================================
+
+name: "OSSF Scorecard"
+
+on:
+  # Run on pushes to main to keep the score current.
+  push:
+    branches: ["main"]
+
+  # Run weekly to catch configuration drift even without code changes.
+  schedule:
+    - cron: "0 7 * * 1"   # Every Monday at 07:00 UTC
+
+  # Allow manual triggering for debugging / on-demand evaluation.
+  workflow_dispatch:
+
+# Least-privilege permissions.
+permissions: read-all
+
+jobs:
+  scorecard:
+    name: Scorecard Analysis
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Required to upload SARIF results to Code Scanning.
+      security-events: write
+
+      # Required for the Scorecard action to read repo metadata, branch
+      # protection settings, and other checks.
+      contents: read
+
+      # Needed if you want to publish results to the OpenSSF REST API
+      # (see `publish_results` below).
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Scorecard needs full history for some checks (e.g., Code-Review).
+          persist-credentials: false
+
+      - name: Run OSSF Scorecard
+        uses: ossf/scorecard-action@v2
+        with:
+          # ---- SARIF output ------------------------------------------------
+          # Produces a SARIF file that can be uploaded to Code Scanning.
+          results_file: scorecard-results.sarif
+          results_format: sarif
+
+          # ---- Publish results to OpenSSF ------------------------------------
+          # Set to "true" to share your score publicly on
+          # https://securityscorecards.dev and via the REST API.
+          # Requires the id-token: write permission above.
+          publish_results: true
+
+          # ---- Authentication -----------------------------------------------
+          # A PAT with `repo` scope is recommended for Branch-Protection and
+          # other checks that inspect repo settings. If you don't provide one,
+          # the default GITHUB_TOKEN is used and some checks may be incomplete.
+          #
+          # Create a fine-grained PAT, store it as SCORECARD_TOKEN, and
+          # uncomment the line below:
+          # repo_token: ${{ secrets.SCORECARD_TOKEN }}
+
+      # ---- Upload SARIF to GitHub Code Scanning -----------------------------
+      - name: Upload Scorecard SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: scorecard-results.sarif
+          category: "ossf-scorecard"
+
+# =============================================================================
+# After enabling:
+#   1. Check the Security → Code scanning alerts tab for Scorecard findings.
+#   2. Each finding links to the Scorecard docs with remediation advice.
+#   3. Use the Scorecard badge in your README:
+#      https://securityscorecards.dev/#scorecard-badge
+#   4. To improve your score, address checks one at a time — start with the
+#      quick wins (Token-Permissions, Pinned-Dependencies).
+#
+# Reference:
+#   https://github.com/ossf/scorecard-action
+#   https://securityscorecards.dev
+# =============================================================================

@@ -1,0 +1,37 @@
+# Dependency Review workflow for the GHAS-Pack demo repository.
+# Runs on every pull request to detect newly introduced dependencies
+# with known vulnerabilities or disallowed licenses.
+
+name: "Dependency Review"
+
+on:
+  pull_request:
+
+# Permissions needed to read repository contents and post PR comments.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository so the action can compare dependency changes.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Run the dependency review action.
+      #   fail-on-severity  – fail the check if any new dependency has a
+      #                       vulnerability of "moderate" severity or higher.
+      #   deny-licenses     – block pull requests that introduce dependencies
+      #                       under the GPL-3.0 license (example policy).
+      #   comment-summary-in-pr – post a summary comment on the pull request
+      #                           with the review results.
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: "moderate"
+          deny-licenses: "GPL-3.0"
+          comment-summary-in-pr: "always"

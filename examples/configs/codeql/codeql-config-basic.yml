@@ -1,0 +1,46 @@
+# =============================================================================
+# CodeQL Configuration — Basic
+# =============================================================================
+# A lightweight CodeQL configuration that extends the default query suite with
+# additional security queries and excludes noisy paths.
+#
+# Copy this file to .github/codeql/codeql-config.yml in your repository, then
+# reference it from your CodeQL workflow:
+#
+#   - name: Initialize CodeQL
+#     uses: github/codeql-action/init@v3
+#     with:
+#       config-file: .github/codeql/codeql-config.yml
+#
+# Query Suites (built-in, from most to least focused):
+#   - security-extended   — Default security queries PLUS additional lower-
+#                           severity and lower-precision security queries.
+#                           Good balance of coverage vs. noise. START HERE.
+#   - security-and-quality — Everything in security-extended PLUS code-quality
+#                            queries (maintainability, complexity, style).
+#                            Noisier, but useful for improving overall health.
+# =============================================================================
+
+name: "CodeQL Config — Basic"
+
+# Use the security-extended suite for broader security coverage
+# without the noise of code-quality rules.
+queries:
+  - uses: security-extended
+
+# Paths to exclude from analysis.
+# Exclude generated code, vendored dependencies, test fixtures, and docs
+# to reduce false positives and speed up scans.
+paths-ignore:
+  - "**/*test*"             # Test files and directories
+  - "**/*spec*"             # Spec files (e.g., *.spec.ts)
+  - "**/tests/**"           # Test directories
+  - "**/test/**"
+  - "**/__tests__/**"       # Jest-style test directories
+  - "**/fixtures/**"        # Test fixture data
+  - "**/testdata/**"
+  - "docs/**"               # Documentation
+  - "**/vendor/**"          # Vendored third-party code
+  - "**/node_modules/**"    # npm dependencies (usually excluded automatically)
+  - "**/*.generated.*"      # Generated files
+  - "**/dist/**"            # Build output

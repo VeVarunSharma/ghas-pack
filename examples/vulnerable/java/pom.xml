@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  DELIBERATELY VULNERABLE DEPENDENCIES — FOR EDUCATIONAL / GHAS TESTING PURPOSES ONLY
+
+  Every dependency below is pinned to a version with one or more publicly
+  disclosed CVEs.  Dependabot and/or GitHub's dependency-review action
+  should flag each of these during pull-request checks.
+
+  DO NOT use these versions in production.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example.ghaspack</groupId>
+    <artifactId>vulnerable-java-examples</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <name>GHAS Pack — Vulnerable Java Examples</name>
+    <description>
+        Intentionally vulnerable Maven project used to demonstrate
+        GitHub Advanced Security supply-chain scanning (Dependabot,
+        dependency-review action, etc.).
+    </description>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- Log4Shell — CVE-2021-44228 (Critical, CVSS 10.0)
+             Remote code execution via JNDI lookup in log messages. -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.14.1</version>
+        </dependency>
+
+        <!-- jackson-databind — multiple CVEs (polymorphic deserialization)
+             e.g. CVE-2021-20190, CVE-2020-36518 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.12.3</version>
+        </dependency>
+
+        <!-- Spring Framework — multiple CVEs including Spring4Shell
+             CVE-2022-22965 (RCE), CVE-2021-22118 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.3.7</version>
+        </dependency>
+
+        <!-- Commons Collections — deserialization gadget chain
+             CVE-2015-6420 / CVE-2017-15708 -->
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+
+        <!-- Apache Struts 2 — multiple RCE CVEs
+             e.g. CVE-2021-31805, CVE-2020-17530 (OGNL injection) -->
+        <dependency>
+            <groupId>org.apache.struts</groupId>
+            <artifactId>struts2-core</artifactId>
+            <version>2.5.26</version>
+        </dependency>
+
+        <!-- Servlet API (provided by container at runtime) -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

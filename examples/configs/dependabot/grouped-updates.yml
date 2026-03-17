@@ -1,0 +1,105 @@
+# =============================================================================
+# Dependabot — Grouped Dependency Updates
+# =============================================================================
+# Instead of one PR per dependency, Dependabot can group related updates into
+# a single PR. This drastically reduces PR noise while keeping you current.
+#
+# Why group?
+#   - Fewer PRs to review and merge.
+#   - Related packages are tested together (e.g., all @types/* or all eslint-*).
+#   - Security updates can still be handled separately for fast response.
+#
+# Grouping strategies shown below:
+#   1. By dependency type (development vs. production).
+#   2. By name pattern (e.g., all @types/* or all @angular/* packages).
+#   3. Security-only updates in their own fast-track group.
+#
+# Copy this file to .github/dependabot.yml and adjust patterns to match
+# your dependency landscape.
+# =============================================================================
+
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+
+    groups:
+      # -- Group 1: Production dependencies -----------------------------------
+      # Batches all non-dev dependency bumps into one PR.
+      # Great when you want a single "update prod deps" PR to test in CI.
+      production-dependencies:
+        dependency-type: "production"
+
+      # -- Group 2: Development dependencies ----------------------------------
+      # Dev-only packages (test runners, linters, build tools) grouped together.
+      # Lower risk — these don't ship to users.
+      development-dependencies:
+        dependency-type: "development"
+
+      # -- Group 3: TypeScript type definitions --------------------------------
+      # Pattern-based grouping: all @types/* packages change together.
+      # They rarely break things and are easier to review in bulk.
+      typescript-types:
+        patterns:
+          - "@types/*"
+
+      # -- Group 4: Linting & formatting tools --------------------------------
+      # Another pattern group: gather eslint-*, prettier, etc.
+      linting-and-formatting:
+        patterns:
+          - "eslint*"
+          - "prettier*"
+          - "@typescript-eslint/*"
+
+      # -- Group 5: AWS SDK modules -------------------------------------------
+      # Large SDK families release many packages at once — group them.
+      # Replace with your own SDK family as needed (@azure/*, @google-cloud/*).
+      aws-sdk:
+        patterns:
+          - "@aws-sdk/*"
+
+    # ---- Security-only updates (not grouped) --------------------------------
+    # By default Dependabot opens individual PRs for security updates.
+    # If you want security PRs grouped separately, add a group like this:
+    #
+    #   security-patches:
+    #     applies-to: "security-updates"
+    #     dependency-type: "production"
+    #
+    # Otherwise, leave security updates ungrouped so each gets its own PR
+    # and can be merged independently for the fastest remediation.
+
+  # ---- GitHub Actions — group all action bumps together ---------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"
+
+    groups:
+      # Actions rarely conflict, so one big group works well.
+      all-actions:
+        patterns:
+          - "*"
+
+# =============================================================================
+# Additional grouping options you can use:
+#
+#   exclude-patterns:
+#     - "some-package"           # Exclude specific packages from a group.
+#
+#   update-types:
+#     - "minor"                  # Only group minor updates; majors get own PR.
+#     - "patch"
+#
+# See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#groups
+# =============================================================================

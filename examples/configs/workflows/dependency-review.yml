@@ -1,0 +1,111 @@
+# =============================================================================
+# Dependency Review Workflow
+# =============================================================================
+# Runs on pull requests and flags newly-introduced dependencies that have:
+#   - Known vulnerabilities above a severity threshold.
+#   - Licenses your org doesn't allow.
+#
+# This is a gatekeeper — it can block merging if risky dependencies are added.
+#
+# Copy this file to .github/workflows/dependency-review.yml in your repository.
+#
+# Prerequisites:
+#   - The repository must have the Dependency Graph enabled
+#     (Settings → Code security → Dependency graph).
+#   - GitHub Advanced Security license (for private repos).
+# =============================================================================
+
+name: "Dependency Review"
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pull-requests: write   # Needed to post the comment summary on the PR.
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          # ---- Severity gate ------------------------------------------------
+          # Fail the check if any new dependency has a vulnerability at or
+          # above this severity level.
+          # Options: low | moderate | high | critical
+          fail-on-severity: high
+
+          # ---- License checking ---------------------------------------------
+          # Deny specific licenses. The check fails if a new dependency uses
+          # any of these licenses.
+          # Common restrictive licenses to block:
+          deny-licenses: >-
+            GPL-2.0,
+            GPL-3.0,
+            AGPL-3.0
+
+          # Alternatively, use allow-licenses to ONLY permit certain licenses:
+          # allow-licenses: >-
+          #   MIT,
+          #   Apache-2.0,
+          #   BSD-2-Clause,
+          #   BSD-3-Clause,
+          #   ISC
+
+          # ---- Allow list ---------------------------------------------------
+          # Exempt specific advisories you've reviewed and accepted the risk for.
+          # Use the GHSA ID from github.com/advisories.
+          # allow-ghsas: >-
+          #   GHSA-xxxx-xxxx-xxxx,
+          #   GHSA-yyyy-yyyy-yyyy
+
+          # ---- Deny list ----------------------------------------------------
+          # Block specific packages regardless of vulnerability status.
+          # Useful for banning deprecated or unmaintained packages.
+          # deny-packages: >-
+          #   npm:left-pad,
+          #   npm:event-stream
+
+          # ---- PR comment summary -------------------------------------------
+          # Post a summary table of dependency changes as a PR comment.
+          # Makes it easy for reviewers to see what changed at a glance.
+          comment-summary-in-pr: always
+
+          # Options for comment-summary-in-pr:
+          #   "always"    — always post a comment.
+          #   "on-failure"— only post when the review fails.
+          #   "never"     — never post (rely on the check status only).
+
+          # ---- Scope --------------------------------------------------------
+          # Which dependency scopes to review.
+          # Options: development | runtime | unknown
+          # Default is all scopes. Uncomment to narrow:
+          # fail-on-scopes: >-
+          #   runtime
+
+          # ---- Vulnerability database source --------------------------------
+          # By default uses the GitHub Advisory Database.
+          # If you use GHES with a different source, configure it here:
+          # vulnerability-check: true
+
+# =============================================================================
+# How it works:
+#   1. Compares the dependency graph of the PR head vs. the base branch.
+#   2. For every *newly added* dependency:
+#      a. Checks the GitHub Advisory Database for known vulnerabilities.
+#      b. Checks the license against your allow/deny list.
+#   3. If any check fails, the workflow fails and blocks merge (when used as
+#      a required status check in branch protection).
+#   4. Optionally posts a comment summarising all dependency changes.
+#
+# Reference:
+#   https://github.com/actions/dependency-review-action
+# =============================================================================

@@ -1,0 +1,145 @@
+# =============================================================================
+# CodeQL — Third-Party SARIF Upload Workflow
+# =============================================================================
+# Upload Static Analysis Results Interchange Format (SARIF) files from
+# external / third-party security scanners into GitHub Code Scanning.
+#
+# Why?
+#   - Centralise all code-scanning alerts in one place (Security tab).
+#   - Get PR annotations even from tools that aren't CodeQL.
+#   - Enforce branch-protection rules that require zero high-severity alerts
+#     across ALL scanners.
+#
+# This workflow shows a generic pattern with placeholder steps for:
+#   • Semgrep
+#   • Snyk
+#   • Trivy
+#
+# Copy this file to .github/workflows/third-party-sarif.yml and uncomment
+# the scanner(s) you use.
+# =============================================================================
+
+name: "Third-Party SARIF Upload"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  security-events: write   # Required to upload SARIF
+  contents: read
+
+jobs:
+  # ===========================================================================
+  # Generic Scanner (replace with your own tool)
+  # ===========================================================================
+  generic-scanner:
+    name: Run External Scanner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # TODO: Replace this step with your scanner's CLI.
+      # The scanner must produce a SARIF file (most modern tools support this).
+      - name: Run scanner
+        run: |
+          echo "TODO: run your scanner here and output results.sarif"
+          # Example: my-scanner --format sarif --output results.sarif .
+
+      # Upload the SARIF file to GitHub Code Scanning.
+      # The `sarif_file` path must match what your scanner writes.
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+
+          # (Optional) Category helps distinguish alerts from different tools
+          # in the Security tab.
+          category: "external-scanner"
+
+  # ===========================================================================
+  # Semgrep (uncomment to enable)
+  # ===========================================================================
+  # semgrep:
+  #   name: Semgrep
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Run Semgrep
+  #       uses: returntocorp/semgrep-action@v1
+  #       with:
+  #         generateSarif: "1"
+  #       env:
+  #         SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+  #
+  #     - name: Upload Semgrep SARIF
+  #       uses: github/codeql-action/upload-sarif@v3
+  #       with:
+  #         sarif_file: semgrep.sarif
+  #         category: "semgrep"
+
+  # ===========================================================================
+  # Snyk (uncomment to enable)
+  # ===========================================================================
+  # snyk:
+  #   name: Snyk Code
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Snyk CLI
+  #       uses: snyk/actions/setup@master
+  #
+  #     - name: Run Snyk Code
+  #       run: snyk code test --sarif-file-output=snyk.sarif || true
+  #       env:
+  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  #
+  #     - name: Upload Snyk SARIF
+  #       uses: github/codeql-action/upload-sarif@v3
+  #       with:
+  #         sarif_file: snyk.sarif
+  #         category: "snyk"
+
+  # ===========================================================================
+  # Trivy (uncomment to enable)
+  # ===========================================================================
+  # trivy:
+  #   name: Trivy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Run Trivy vulnerability scanner
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         scan-type: "fs"
+  #         format: "sarif"
+  #         output: "trivy.sarif"
+  #         severity: "CRITICAL,HIGH"
+  #
+  #     - name: Upload Trivy SARIF
+  #       uses: github/codeql-action/upload-sarif@v3
+  #       with:
+  #         sarif_file: trivy.sarif
+  #         category: "trivy"
+
+# =============================================================================
+# Notes:
+#   - SARIF files must conform to the SARIF 2.1.0 specification.
+#   - GitHub accepts a maximum of 5000 results per SARIF upload.
+#   - Each tool should use a unique `category` value so alerts are not mixed.
+#   - If the upload step runs on a PR, alerts appear as PR annotations.
+#   - You can enforce results via branch protection → "Require status checks"
+#     by adding a Code Scanning rule that blocks on high-severity alerts.
+#
+# Reference:
+#   https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github
+# =============================================================================

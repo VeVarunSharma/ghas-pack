@@ -1,0 +1,15 @@
+{
+  "name": "ghas-pack-secure-js",
+  "version": "1.0.0",
+  "private": true,
+  "description": "✅ SECURE — Patched dependency versions. Compare with ../../../vulnerable/javascript/package.json to see the vulnerable originals.",
+  "dependencies": {
+    "express": "4.21.2",
+    "lodash": "4.17.21",
+    "minimist": "1.2.8",
+    "node-fetch": "2.7.0",
+    "axios": "1.7.9",
+    "tar": "6.2.1",
+    "mysql": "2.18.1"
+  }
+}

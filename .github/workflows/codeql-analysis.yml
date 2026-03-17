@@ -1,0 +1,56 @@
+# CodeQL Analysis workflow for the GHAS-Pack demo repository.
+# Runs CodeQL static analysis across multiple languages on push,
+# pull request, and on a weekly schedule.
+
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run every Monday at 06:00 UTC
+    - cron: "0 6 * * 1"
+
+# Minimum permissions required for CodeQL scanning.
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Add or remove languages as needed.
+        language: [javascript, python, java, csharp]
+
+    steps:
+      # Step 1 – Check out the repository so CodeQL can access the source.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2 – Initialise the CodeQL tools and create a database for
+      # the language specified in the matrix.  The custom config file
+      # extends the default queries with the security-and-quality suite.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          config-file: ./.github/codeql/codeql-config.yml
+
+      # Step 3 – Autobuild attempts to compile the code for compiled
+      # languages (Java, C#).  For interpreted languages (JavaScript,
+      # Python) this step is effectively a no-op but is safe to keep.
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Step 4 – Run the CodeQL analysis and upload results to the
+      # GitHub Security tab.
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

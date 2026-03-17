@@ -1,0 +1,37 @@
+<!--
+  DELIBERATELY VULNERABLE DEPENDENCIES — FOR EDUCATIONAL / GHAS TESTING PURPOSES ONLY
+
+  Every package below is pinned to a version with one or more publicly
+  disclosed CVEs.  Dependabot and/or the dependency-review GitHub Action
+  should flag each of these during pull-request checks.
+
+  DO NOT use these versions in production.
+-->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- System.Text.RegularExpressions 4.3.0 — CVE-2019-0820 (ReDoS) -->
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.0" />
+
+    <!-- Newtonsoft.Json 12.0.3 — no direct CVE but commonly flagged;
+         older versions lack strict deserialization defaults -->
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+
+    <!-- System.Net.Http 4.3.0 — CVE-2018-8292 (credential leak) -->
+    <PackageReference Include="System.Net.Http" Version="4.3.0" />
+
+    <!-- Microsoft.AspNetCore.Mvc.Core 2.1.0 — multiple CVEs including
+         CVE-2019-0564 (DoS) and CVE-2019-0548 -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.0" />
+
+    <!-- System.DirectoryServices — needed for LDAP example -->
+    <PackageReference Include="System.DirectoryServices" Version="6.0.0" />
+  </ItemGroup>
+
+</Project>

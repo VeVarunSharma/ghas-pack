@@ -1,0 +1,56 @@
+# Dependabot configuration for GHAS-Pack demo repository.
+# This config covers multiple ecosystems to demonstrate how Dependabot
+# can keep dependencies up to date and flag known vulnerabilities.
+# Customize the directories, schedules, and labels to fit your project.
+
+version: 2
+updates:
+  # JavaScript / npm
+  - package-ecosystem: "npm"
+    directory: "/examples/vulnerable/javascript"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "security"
+    open-pull-requests-limit: 10
+
+  # Python / pip
+  - package-ecosystem: "pip"
+    directory: "/examples/vulnerable/python"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "security"
+    open-pull-requests-limit: 10
+
+  # Java / Maven
+  - package-ecosystem: "maven"
+    directory: "/examples/vulnerable/java"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "security"
+    open-pull-requests-limit: 10
+
+  # C# / NuGet
+  - package-ecosystem: "nuget"
+    directory: "/examples/vulnerable/csharp"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "security"
+    open-pull-requests-limit: 10
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "security"
+    open-pull-requests-limit: 10

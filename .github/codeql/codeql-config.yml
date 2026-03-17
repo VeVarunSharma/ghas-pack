@@ -1,0 +1,23 @@
+# Custom CodeQL configuration for the GHAS-Pack demo repository.
+# This config extends the default queries with the security-and-quality
+# suite and excludes paths that are not relevant to analysis.
+
+name: "GHAS-Pack CodeQL Config"
+
+queries:
+  - uses: security-and-quality
+
+paths-ignore:
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/__tests__/**'
+  - '**/node_modules/**'
+  - 'docs/**'
+
+# query-filters:
+#   # Uncomment the section below to exclude low-severity alerts.
+#   # This can help reduce noise when you want to focus on high-impact
+#   # findings first.  The "problem.severity" property accepts:
+#   #   recommendation, warning, error
+#   - exclude:
+#       problem.severity: recommendation
