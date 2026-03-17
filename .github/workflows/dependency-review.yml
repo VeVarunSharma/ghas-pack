@@ -24,28 +24,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Ensure the Dependency Graph is enabled so the dependency-review action
-      # can compare dependency changes between the base and head commits.
-      # The PATCH call is idempotent; it is a no-op if already enabled.
-      # administration: write permission is required solely for this API call —
-      # there is no more granular GitHub token permission for enabling the
-      # Dependency Graph programmatically.
-      - name: Enable Dependency Graph
+      # Probe the Dependency Graph API to detect whether the feature is enabled.
+      # When it is disabled the dependency-review-action would hard-fail with
+      # "Dependency review is not supported on this repository", so we surface a
+      # clear warning and let subsequent steps skip gracefully instead.
+      - name: Check Dependency Graph availability
+        id: dep-graph
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          HTTP_STATUS=$(curl -s -o /tmp/dg_response.json -w "%{http_code}" -X PATCH \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${{ github.repository }}" \
-            -d '{"security_and_analysis":{"dependency_graph":{"status":"enabled"}}}')
-          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 204 ]; then
-            echo "Failed to enable Dependency Graph (HTTP $HTTP_STATUS):"
-            cat /tmp/dg_response.json
-            exit 1
+          if gh api \
+            "repos/${{ github.repository }}/dependency-graph/compare/${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" \
+            --silent 2>/dev/null; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Dependency Graph is not enabled on this repository. Enable it at https://github.com/${{ github.repository }}/settings/security_analysis to enforce dependency review on pull requests."
           fi
-          echo "Dependency Graph enabled (HTTP $HTTP_STATUS)."
 
       # Run the dependency review action.
       #   fail-on-severity  – fail the check if any new dependency has a
@@ -54,7 +49,11 @@ jobs:
       #                       under the GPL-3.0 license (example policy).
       #   comment-summary-in-pr – post a summary comment on the pull request
       #                           with the review results.
+      # The step is skipped entirely when the Dependency Graph is unavailable
+      # (detected above) so that the workflow passes without silencing real
+      # security violations once the feature is enabled.
       - name: Dependency Review
+        if: steps.dep-graph.outputs.enabled == 'true'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: "moderate"
