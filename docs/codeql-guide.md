@@ -128,7 +128,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -143,7 +143,7 @@ jobs:
       #     dotnet build MySolution.sln
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{ matrix.language }}"
 ```
@@ -328,7 +328,7 @@ Reference custom queries in your workflow:
 ```yaml
 # In your CodeQL workflow
 - name: Initialize CodeQL
-  uses: github/codeql-action/init@v3
+  uses: github/codeql-action/init@v4
   with:
     languages: javascript-typescript
     packs: |
@@ -368,11 +368,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
           build-mode: none
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v4
         with:
           category: "frontend"
 
@@ -381,11 +381,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin
           build-mode: autobuild
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v4
         with:
           category: "backend-api"
 
@@ -394,12 +394,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v4
         with:
           languages: python
           build-mode: none
           config-file: .github/codeql/codeql-config.yml
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v4
         with:
           category: "services"
 ```
@@ -454,7 +454,7 @@ paths-ignore:
 
 ```yaml
 - name: Perform CodeQL Analysis
-  uses: github/codeql-action/analyze@v3
+  uses: github/codeql-action/analyze@v4
   timeout-minutes: 120  # Default is 360 (6 hours)
 ```
 

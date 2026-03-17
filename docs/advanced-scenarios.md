@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -102,7 +102,7 @@ jobs:
         run: ${{ matrix.build-cmd }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           # Category separates results per service in the Security tab
           category: "/language:${{ matrix.language }}/service:${{ matrix.service }}"
@@ -197,7 +197,7 @@ The pack is now available at `ghcr.io/my-org/security-queries`.
 
 ```yaml
 - name: Initialize CodeQL
-  uses: github/codeql-action/init@v3
+  uses: github/codeql-action/init@v4
   with:
     languages: javascript-typescript
     packs: |
@@ -228,7 +228,7 @@ GitHub's code scanning accepts results from **any** tool that produces [SARIF v2
 ```yaml
 # After any tool writes results.sarif:
 - name: Upload SARIF
-  uses: github/codeql-action/upload-sarif@v3
+  uses: github/codeql-action/upload-sarif@v4
   with:
     sarif_file: results.sarif
     category: tool-name   # Keeps results separate per tool
@@ -263,7 +263,7 @@ jobs:
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
       - name: Upload Semgrep SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: semgrep.sarif
@@ -287,7 +287,7 @@ jobs:
           output: trivy.sarif
           severity: CRITICAL,HIGH,MEDIUM
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: trivy.sarif
@@ -310,7 +310,7 @@ jobs:
         with:
           args: --sarif-file-output=snyk.sarif
       - name: Upload Snyk SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: snyk.sarif

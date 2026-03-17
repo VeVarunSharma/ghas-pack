@@ -45,7 +45,7 @@ jobs:
       # "javascript-typescript" covers both JS and TS.
       # No config-file is specified, so the default query suite is used.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
 
@@ -53,4 +53,4 @@ jobs:
       # For interpreted languages (JS, Python, Ruby) no build step is needed.
       # CodeQL's autobuild handles everything automatically.
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4

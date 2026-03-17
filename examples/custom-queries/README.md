@@ -59,15 +59,15 @@ A **qlpack** groups related queries and declares their dependencies. Create a `q
 ```yaml
 name: my-org/custom-queries
 version: 0.0.1
-libraryPathDependencies:
-  - codeql/javascript-all
-  - codeql/python-all
+dependencies:
+  codeql/javascript-all: "*"
+  codeql/python-all: "*"
 ```
 
 Key fields:
 - **`name`** — unique pack identifier (typically `org/pack-name`)
 - **`version`** — semantic version of your query pack
-- **`libraryPathDependencies`** — CodeQL standard libraries your queries depend on
+- **`dependencies`** — CodeQL standard libraries your queries depend on (with version constraints)
 
 After creating the pack, install dependencies:
 
@@ -92,7 +92,7 @@ Then reference the config in your GitHub Actions workflow:
 
 ```yaml
 - name: Initialize CodeQL
-  uses: github/codeql-action/init@v3
+  uses: github/codeql-action/init@v4
   with:
     config-file: .github/codeql/codeql-config.yml
 ```

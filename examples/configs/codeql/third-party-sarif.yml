@@ -52,7 +52,7 @@ jobs:
       # Upload the SARIF file to GitHub Code Scanning.
       # The `sarif_file` path must match what your scanner writes.
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
 
@@ -78,7 +78,7 @@ jobs:
   #         SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
   #
   #     - name: Upload Semgrep SARIF
-  #       uses: github/codeql-action/upload-sarif@v3
+  #       uses: github/codeql-action/upload-sarif@v4
   #       with:
   #         sarif_file: semgrep.sarif
   #         category: "semgrep"
@@ -102,7 +102,7 @@ jobs:
   #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   #
   #     - name: Upload Snyk SARIF
-  #       uses: github/codeql-action/upload-sarif@v3
+  #       uses: github/codeql-action/upload-sarif@v4
   #       with:
   #         sarif_file: snyk.sarif
   #         category: "snyk"
@@ -126,7 +126,7 @@ jobs:
   #         severity: "CRITICAL,HIGH"
   #
   #     - name: Upload Trivy SARIF
-  #       uses: github/codeql-action/upload-sarif@v3
+  #       uses: github/codeql-action/upload-sarif@v4
   #       with:
   #         sarif_file: trivy.sarif
   #         category: "trivy"
