@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <!-- System.Text.RegularExpressions 4.3.0 — CVE-2019-0820 (ReDoS) -->
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.0" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 
     <!-- Newtonsoft.Json 12.0.3 — no direct CVE but commonly flagged;
          older versions lack strict deserialization defaults -->
