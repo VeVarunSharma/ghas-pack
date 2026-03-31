@@ -21,7 +21,7 @@
 
     <!-- Newtonsoft.Json 12.0.3 — no direct CVE but commonly flagged;
          older versions lack strict deserialization defaults -->
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 
     <!-- System.Net.Http 4.3.0 — CVE-2018-8292 (credential leak) -->
     <PackageReference Include="System.Net.Http" Version="4.3.0" />
